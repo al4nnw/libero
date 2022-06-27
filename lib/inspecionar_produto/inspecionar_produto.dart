@@ -94,7 +94,9 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Contador(value: counterEstoque),
               ),
-              secondChild: const _ContadoresLojas(),
+              secondChild: _ContadoresLojas(
+                produto: widget.produto,
+              ),
               crossFadeState: _showContadorEstoque ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             )
           ],
@@ -135,30 +137,53 @@ class QuantidadeProduto extends StatelessWidget {
 }
 
 class _ContadoresLojas extends StatelessWidget {
+  final Produto produto;
+
   const _ContadoresLojas({
     Key? key,
+    required this.produto,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LojaCounter(loja: Loja(nome: "Concórdia", funcional: true, id: ""), quantidade: 60),
-        LojaCounter(loja: Loja(nome: "Concórdia", funcional: true, id: ""), quantidade: 60)
+        LojaCounter(
+          loja: Loja(nome: "Concórdia", funcional: true, id: "concordia"),
+          produto: produto,
+        ),
+        LojaCounter(
+          loja: Loja(nome: "All Brás", funcional: true, id: "allBras"),
+          produto: produto,
+        )
       ],
     );
   }
 }
 
 /// Total de unidades deste item que a loja possui
-class LojaCounter extends StatelessWidget {
+class LojaCounter extends StatefulWidget {
   final Loja loja;
-  final int quantidade;
+
+  final Produto produto;
   const LojaCounter({
     Key? key,
     required this.loja,
-    required this.quantidade,
+    required this.produto,
   }) : super(key: key);
+
+  @override
+  State<LojaCounter> createState() => _LojaCounterState();
+}
+
+class _LojaCounterState extends State<LojaCounter> {
+  int quantidade = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    quantidade = widget.produto.quantidade;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,26 +196,26 @@ class LojaCounter extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(loja.nome,
+              Text(widget.loja.nome,
                   style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500)),
               Row(children: [
                 IconButton(
                     splashRadius: 0.01,
-                    onPressed: () {},
+                    onPressed: () {
+                      Database.retirarDaLoja(widget.loja, widget.produto);
+                    },
                     icon: const Icon(
                       Icons.exposure_minus_1,
                       color: Colors.white,
                     )),
                 const SizedBox(width: 5),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Text(quantidade.toString(),
-                      style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500)),
-                ),
+                _buildQuantidadeNaLoja(),
                 const SizedBox(width: 5),
                 IconButton(
                     splashRadius: 0.01,
-                    onPressed: () {},
+                    onPressed: () {
+                      Database.adicionarParaLoja(widget.loja, widget.produto);
+                    },
                     icon: const Icon(
                       Icons.exposure_plus_1,
                       color: Colors.white,
@@ -201,5 +226,20 @@ class LojaCounter extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildQuantidadeNaLoja() {
+    return StreamBuilder<int>(
+        stream: Database.getQuantidade(widget.produto.id, loja: widget.loja.id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            quantidade = snapshot.data!;
+          }
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 3),
+            child: Text(quantidade.toString(),
+                style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500)),
+          );
+        });
   }
 }
