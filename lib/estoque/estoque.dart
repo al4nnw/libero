@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../cores.dart';
 import '../criar_produto/criar_produto.dart';
 import '../main.dart';
 import '../models/produto.dart';
-import '../utils/time_handler.dart';
+import '../services/database.dart';
+import 'escolher_filtros.dart';
 import 'produto_title.dart';
 
 class Estoque extends StatefulWidget {
@@ -15,55 +17,6 @@ class Estoque extends StatefulWidget {
 }
 
 class _EstoqueState extends State<Estoque> {
-  final List<Produto> produtos = [
-    Produto(
-        nome: "Calça Jakarta",
-        quantidade: 23,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-      nome: "Calça Aparta",
-      quantidade: 3,
-      alteradoEm: TimeHandler.now(),
-      adicionadoEm: TimeHandler.now(),
-    ),
-    Produto(
-        nome: "Calça Listrada Carnaval",
-        quantidade: 20,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-    Produto(
-        nome: "Calça Bege moletom",
-        quantidade: 0,
-        alteradoEm: TimeHandler.now(),
-        adicionadoEm: TimeHandler.now()),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,15 +52,16 @@ class _EstoqueState extends State<Estoque> {
           children: [
             const _FixedTitle(),
             Expanded(
-                child: ListView.separated(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: produtos.length,
-                    separatorBuilder: (context, index) => const Divider(
-                          color: Colors.black,
-                          endIndent: 15,
-                          indent: 15,
-                        ),
-                    itemBuilder: (context, index) => ProdutoTile(produtos[index]))),
+                child: StreamBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
+                    stream: Database.getProducts(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return _ProductsList(produtos: snapshot.data!);
+                      }
+                      return const Center(
+                        child: Text("Nenhum produto foi encontrado."),
+                      );
+                    })),
             Container(
               color: verdeEscuro,
               height: 50,
@@ -127,74 +81,34 @@ class _EstoqueState extends State<Estoque> {
   }
 }
 
-class EscolherFiltros extends StatefulWidget {
-  const EscolherFiltros({
+class _ProductsList extends StatelessWidget {
+  const _ProductsList({
     Key? key,
+    required this.produtos,
   }) : super(key: key);
 
-  @override
-  State<EscolherFiltros> createState() => _EscolherFiltrosState();
-}
-
-class _EscolherFiltrosState extends State<EscolherFiltros> {
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text("Mostrando estoque do", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 10),
-          const _LojaToFilter(title: "Armazém", selected: true),
-          const _LojaToFilter(title: "Concórdia", selected: false),
-          const _LojaToFilter(title: "All Brás", selected: false),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Fechar"))
-        ]),
-      ),
-    );
-  }
-}
-
-class _LojaToFilter extends StatelessWidget {
-  final String title;
-  final bool selected;
-  const _LojaToFilter({
-    Key? key,
-    required this.selected,
-    required this.title,
-  }) : super(key: key);
+  final List<QueryDocumentSnapshot<Map<String, dynamic>>> produtos;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: cinza,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(title,
-              style: const TextStyle(
-                fontSize: 15,
-              )),
-          Container(
-            height: 20,
-            width: 20,
-            decoration: BoxDecoration(
-                color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.black)),
-            child: Center(
-              child: Container(
-                height: 14,
-                width: 14,
-                decoration:
-                    BoxDecoration(color: selected ? verdeEscuro : Colors.transparent, shape: BoxShape.circle),
-              ),
+    if (produtos.isEmpty) {
+      return _ifEmpty();
+    }
+    return ListView.separated(
+        physics: const BouncingScrollPhysics(),
+        itemCount: produtos.length,
+        separatorBuilder: (context, index) => const Divider(
+              color: Colors.black,
+              endIndent: 15,
+              indent: 15,
             ),
-          )
-        ]),
-      ),
+        itemBuilder: (context, index) =>
+            ProdutoTile(Produto.fromFirestore(produtos[index].data(), produtos[index].id)));
+  }
+
+  Widget _ifEmpty() {
+    return const Center(
+      child: Text("Nenhum produto foi adicionado ainda."),
     );
   }
 }

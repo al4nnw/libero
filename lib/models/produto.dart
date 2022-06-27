@@ -4,18 +4,19 @@ class Produto {
   final String nome;
   final int quantidade;
   final String? foto;
+  final String id;
   final TimeHandler adicionadoEm;
   final TimeHandler alteradoEm;
 
-  Produto({
-    required this.nome,
-    required this.quantidade,
-    required this.adicionadoEm,
-    required this.alteradoEm,
-    this.foto,
-  });
+  Produto(
+      {required this.nome,
+      required this.quantidade,
+      required this.adicionadoEm,
+      required this.alteradoEm,
+      this.foto,
+      this.id = ""});
 
-  Produto.fromFirestore(Map produtoMap)
+  Produto.fromFirestore(Map produtoMap, this.id)
       : nome = produtoMap["nome"],
         quantidade = produtoMap["quantidade"],
         adicionadoEm = TimeHandler(produtoMap["adicionadoEm"]),
