@@ -32,4 +32,14 @@ class Produto {
       "foto": foto,
     };
   }
+
+  Map<String, Object?> toFirestoreEmpty() {
+    return {
+      "nome": nome,
+      "quantidade": 0,
+      "adicionadoEm": adicionadoEm.toString(),
+      "alteradoEm": alteradoEm.toString(),
+      "foto": foto,
+    };
+  }
 }

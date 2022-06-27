@@ -19,7 +19,22 @@ class InspecionarProduto extends ConsumerStatefulWidget {
 
 class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
   bool _showContadorEstoque = false;
-  final counterEstoque = Counter(0);
+
+  late Counter counterEstoque;
+  @override
+  void initState() {
+    super.initState();
+    counterEstoque = Counter(widget.produto.quantidade);
+    counterEstoque.addListener(_atualizarProduto);
+  }
+
+  @override
+  void dispose() {
+    counterEstoque.removeListener(_atualizarProduto);
+    counterEstoque.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,10 +74,12 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Quantidade no estoque",
+                children: [
+                  const Text("Quantidade no estoque",
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
-                  Text("23 un.", style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+                  QuantidadeProduto(
+                    produto: widget.produto,
+                  ),
                 ],
               ),
             ),
@@ -86,10 +103,34 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
     );
   }
 
+  void _atualizarProduto() => Database.updateEstoque(widget.produto.id, counterEstoque.value);
+
   void deleteProduct() {
     Database.deleteProduct(widget.produto.id);
     ref.refresh(productsCounter);
     Navigator.pop(context);
+  }
+}
+
+class QuantidadeProduto extends StatelessWidget {
+  final Produto produto;
+  const QuantidadeProduto({
+    Key? key,
+    required this.produto,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String text = "${produto.quantidade.toString()} un.";
+    return StreamBuilder<int>(
+        stream: Database.getQuantidade(produto.id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            text = "${snapshot.data.toString()} un.";
+          }
+
+          return Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal));
+        });
   }
 }
 
