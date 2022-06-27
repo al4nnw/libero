@@ -20,4 +20,13 @@ class Database {
         .snapshots()
         .map((event) => event.docs);
   }
+
+  static void deleteProduct(String productId) async {
+    return FirebaseFirestore.instance
+        .collection("lojas")
+        .doc("principal")
+        .collection("produtos")
+        .doc(productId)
+        .delete();
+  }
 }

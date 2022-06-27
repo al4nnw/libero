@@ -4,6 +4,7 @@ import 'package:libero/componentes/contador.dart';
 import '../cores.dart';
 import '../models/loja.dart';
 import '../models/produto.dart';
+import '../services/database.dart';
 import '../utils/counter.dart';
 
 class InspecionarProduto extends StatefulWidget {
@@ -35,7 +36,7 @@ class _InspecionarProdutoState extends State<InspecionarProduto> {
         elevation: 0,
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios)),
         centerTitle: true,
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.delete))],
+        actions: [IconButton(onPressed: deleteProduct, icon: const Icon(Icons.delete))],
         title: const Text("Estoque"),
       ),
       body: SingleChildScrollView(
@@ -81,6 +82,11 @@ class _InspecionarProdutoState extends State<InspecionarProduto> {
         ),
       ),
     );
+  }
+
+  void deleteProduct() {
+    Database.deleteProduct(widget.produto.id);
+    Navigator.pop(context);
   }
 }
 
