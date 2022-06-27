@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libero/componentes/contador.dart';
+import 'package:libero/estoque/estoque.dart';
 
 import '../cores.dart';
 import '../models/loja.dart';
@@ -7,15 +9,15 @@ import '../models/produto.dart';
 import '../services/database.dart';
 import '../utils/counter.dart';
 
-class InspecionarProduto extends StatefulWidget {
+class InspecionarProduto extends ConsumerStatefulWidget {
   final Produto produto;
   const InspecionarProduto({Key? key, required this.produto}) : super(key: key);
 
   @override
-  State<InspecionarProduto> createState() => _InspecionarProdutoState();
+  ConsumerState<InspecionarProduto> createState() => _InspecionarProdutoState();
 }
 
-class _InspecionarProdutoState extends State<InspecionarProduto> {
+class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
   bool _showContadorEstoque = false;
   final counterEstoque = Counter(0);
   @override
@@ -86,6 +88,7 @@ class _InspecionarProdutoState extends State<InspecionarProduto> {
 
   void deleteProduct() {
     Database.deleteProduct(widget.produto.id);
+    ref.refresh(productsCounter);
     Navigator.pop(context);
   }
 }

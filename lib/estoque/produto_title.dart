@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libero/estoque/estoque.dart';
 import 'package:libero/rotas.dart';
 
 import '../cores.dart';
 import '../models/produto.dart';
 
-class ProdutoTile extends StatelessWidget {
+class ProdutoTile extends ConsumerWidget {
   final Produto produto;
   const ProdutoTile(
     this.produto, {
     Key? key,
   }) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    Future.delayed(Duration.zero, () => ref.read(productsCounter.notifier).updateKey(produto));
     return ListTile(
       onTap: () {
         Navigator.of(context).pushNamed(Rotas.inspecionarProduto, arguments: produto);

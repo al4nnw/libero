@@ -18,7 +18,8 @@ class Database {
         .doc("principal")
         .collection("produtos")
         .snapshots()
-        .map((event) => event.docs);
+        .map((event) => event.docs)
+        .asBroadcastStream();
   }
 
   static void deleteProduct(String productId) async {

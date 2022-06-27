@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libero/models/total_products_store.dart';
 
 import '../cores.dart';
 import '../criar_produto/criar_produto.dart';
@@ -9,14 +11,10 @@ import '../services/database.dart';
 import 'escolher_filtros.dart';
 import 'produto_title.dart';
 
-class Estoque extends StatefulWidget {
+final productsCounter = ChangeNotifierProvider<TotalProductsStore>((ref) => TotalProductsStore());
+
+class Estoque extends StatelessWidget {
   const Estoque({Key? key}) : super(key: key);
-
-  @override
-  State<Estoque> createState() => _EstoqueState();
-}
-
-class _EstoqueState extends State<Estoque> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,22 +60,35 @@ class _EstoqueState extends State<Estoque> {
                         child: Text("Nenhum produto foi encontrado."),
                       );
                     })),
-            Container(
-              color: verdeEscuro,
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text("Total de peças",
-                      style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500)),
-                  Text("54 un.",
-                      style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500))
-                ],
-              ),
-            )
+            const _TotalProducsCount()
           ],
         ));
+  }
+}
+
+class _TotalProducsCount extends ConsumerWidget {
+  const _TotalProducsCount({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final value = ref.watch(productsCounter).total;
+
+    return Container(
+      color: verdeEscuro,
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text("Total de peças",
+              style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500)),
+          Text("$value un.",
+              style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500))
+        ],
+      ),
+    );
   }
 }
 

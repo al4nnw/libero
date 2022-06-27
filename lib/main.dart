@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libero/cores.dart';
 import 'package:libero/initial_route.dart';
 
@@ -21,16 +22,18 @@ class Libero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const InitialRoute(),
-      navigatorKey: rootNavigatorKey,
-      theme: ThemeData(
-        fontFamily: "WorkSans",
-        primaryColor: verdeClaro,
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.white,
+    return ProviderScope(
+      child: MaterialApp(
+        home: const InitialRoute(),
+        navigatorKey: rootNavigatorKey,
+        theme: ThemeData(
+          fontFamily: "WorkSans",
+          primaryColor: verdeClaro,
+          primarySwatch: Colors.green,
+          scaffoldBackgroundColor: Colors.white,
+        ),
+        debugShowCheckedModeBanner: false,
       ),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
