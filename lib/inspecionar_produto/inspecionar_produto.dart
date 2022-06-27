@@ -96,6 +96,7 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
               ),
               secondChild: _ContadoresLojas(
                 produto: widget.produto,
+                counter: counterEstoque,
               ),
               crossFadeState: _showContadorEstoque ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             )
@@ -138,10 +139,11 @@ class QuantidadeProduto extends StatelessWidget {
 
 class _ContadoresLojas extends StatelessWidget {
   final Produto produto;
-
+  final Counter counter;
   const _ContadoresLojas({
     Key? key,
     required this.produto,
+    required this.counter,
   }) : super(key: key);
 
   @override
@@ -149,13 +151,11 @@ class _ContadoresLojas extends StatelessWidget {
     return Column(
       children: [
         LojaCounter(
-          loja: Loja(nome: "Concórdia", funcional: true, id: "concordia"),
-          produto: produto,
-        ),
+            loja: Loja(nome: "Concórdia", funcional: true, id: "concordia"),
+            produto: produto,
+            counter: counter),
         LojaCounter(
-          loja: Loja(nome: "All Brás", funcional: true, id: "allBras"),
-          produto: produto,
-        )
+            loja: Loja(nome: "All Brás", funcional: true, id: "allBras"), produto: produto, counter: counter)
       ],
     );
   }
@@ -164,12 +164,13 @@ class _ContadoresLojas extends StatelessWidget {
 /// Total de unidades deste item que a loja possui
 class LojaCounter extends StatefulWidget {
   final Loja loja;
-
+  final Counter counter;
   final Produto produto;
   const LojaCounter({
     Key? key,
     required this.loja,
     required this.produto,
+    required this.counter,
   }) : super(key: key);
 
   @override
@@ -202,7 +203,10 @@ class _LojaCounterState extends State<LojaCounter> {
                 IconButton(
                     splashRadius: 0.01,
                     onPressed: () {
-                      Database.retirarDaLoja(widget.loja, widget.produto);
+                      if (quantidade > 0) {
+                        Database.retirarDaLoja(widget.loja, widget.produto);
+                        widget.counter.value++;
+                      }
                     },
                     icon: const Icon(
                       Icons.exposure_minus_1,
@@ -214,7 +218,10 @@ class _LojaCounterState extends State<LojaCounter> {
                 IconButton(
                     splashRadius: 0.01,
                     onPressed: () {
-                      Database.adicionarParaLoja(widget.loja, widget.produto);
+                      if (widget.counter.value > 0) {
+                        Database.adicionarParaLoja(widget.loja, widget.produto);
+                        widget.counter.value--;
+                      }
                     },
                     icon: const Icon(
                       Icons.exposure_plus_1,

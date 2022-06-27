@@ -1,21 +1,24 @@
 import 'package:flutter/foundation.dart';
 
-class Counter extends ValueNotifier<int> {
+class Counter extends ChangeNotifier {
   int? max;
   int? min;
   bool enabled;
-  Counter(super.value, {this.max, this.min, this.enabled = true});
+  int value;
+  Counter(this.value, {this.max, this.min, this.enabled = true});
 
   void add() {
     enabled = true;
     if (value == max) return;
     value++;
+    notifyListeners();
   }
 
   void sub() {
     enabled = true;
     if (value == min) return;
     value--;
+    notifyListeners();
   }
 
   void clear() {
