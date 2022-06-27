@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:libero/componentes/contador.dart';
 
 import '../cores.dart';
+import '../models/produto.dart';
+import '../services/database.dart';
 import '../utils/counter.dart';
+import '../utils/show_error.dart';
+import '../utils/time_handler.dart';
 
 class CriarProduto extends StatefulWidget {
   const CriarProduto({Key? key}) : super(key: key);
@@ -55,8 +59,9 @@ class _CriarProdutoState extends State<CriarProduto> {
                   const SizedBox(height: 20),
                   const Text("Nome do produto",
                       style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)),
-                  const TextField(
-                    decoration: InputDecoration(hintText: "Digite o nome do produto"),
+                  TextField(
+                    controller: nomeController,
+                    decoration: const InputDecoration(hintText: "Digite o nome do produto"),
                   ),
                   const SizedBox(height: 20),
                   const Align(
@@ -74,7 +79,23 @@ class _CriarProdutoState extends State<CriarProduto> {
         floatingActionButton: FloatingActionButton(
             backgroundColor: verdeEscuro,
             splashColor: Colors.transparent,
-            onPressed: () {},
+            onPressed: _onCreateProduct,
             child: const Icon(Icons.check, color: Colors.white)));
+  }
+
+  void _onCreateProduct() {
+    /// Verificar se campos foram preenchidos
+    if (nomeController.value.text == "") {
+      return showError(context, "Insira o nome do produto.");
+    }
+
+    /// Adicionar ao firestore
+    Database.adicionarProduto(Produto(
+        nome: nomeController.value.text,
+        quantidade: counter.value,
+        adicionadoEm: TimeHandler.now(),
+        alteradoEm: TimeHandler.now()));
+
+    Navigator.pop(context);
   }
 }

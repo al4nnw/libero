@@ -35,6 +35,7 @@ class _InspecionarProdutoState extends State<InspecionarProduto> {
         elevation: 0,
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios)),
         centerTitle: true,
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.delete))],
         title: const Text("Estoque"),
       ),
       body: SingleChildScrollView(
