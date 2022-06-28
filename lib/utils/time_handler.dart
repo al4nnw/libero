@@ -37,7 +37,7 @@ class TimeHandler extends DateTime {
 
     if (delta.inSeconds > 0 && delta.inMinutes < 1) return "${delta.inSeconds}s";
 
-    return toDate();
+    return "0s";
   }
 
   String toDateComHoras() {

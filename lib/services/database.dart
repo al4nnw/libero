@@ -84,6 +84,7 @@ class Database {
   }
 
   static void updateEstoque(String productId, int amount) async {
+    if (amount <= 0) return;
     return FirebaseFirestore.instance
         .collection("lojas")
         .doc("principal")
@@ -97,5 +98,9 @@ class Database {
   }
 
   static Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> get getAtividades =>
-      FirebaseFirestore.instance.collection("atividades").snapshots().map((event) => event.docs);
+      FirebaseFirestore.instance
+          .collection("atividades")
+          .orderBy("criadoEm", descending: true)
+          .snapshots()
+          .map((event) => event.docs);
 }

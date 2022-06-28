@@ -77,7 +77,7 @@ class AtividadeTile extends StatelessWidget {
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(atividade.subtitle), _SelfUpdateTime(atividade: atividade)],
+            children: [Expanded(child: Text(atividade.subtitle)), _SelfUpdateTime(atividade: atividade)],
           ),
           const SizedBox(height: 15),
         ],

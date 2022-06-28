@@ -109,6 +109,7 @@ class _ProductsList extends StatelessWidget {
         cacheExtent: 2000,
         physics: const BouncingScrollPhysics(),
         itemCount: produtos.length,
+        padding: const EdgeInsets.only(top: 20),
         separatorBuilder: (context, index) => const Divider(
               color: Colors.black,
               endIndent: 15,
