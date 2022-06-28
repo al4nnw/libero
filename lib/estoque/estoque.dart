@@ -106,6 +106,7 @@ class _ProductsList extends StatelessWidget {
       return _ifEmpty();
     }
     return ListView.separated(
+        cacheExtent: 2000,
         physics: const BouncingScrollPhysics(),
         itemCount: produtos.length,
         separatorBuilder: (context, index) => const Divider(
