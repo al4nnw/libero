@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:libero/componentes/contador.dart';
+import 'package:libero/models/atividade.dart';
 
 import '../cores.dart';
 import '../models/produto.dart';
@@ -70,7 +71,8 @@ class _CriarProdutoState extends State<CriarProduto> {
                         style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)),
                   ),
                   const SizedBox(height: 10),
-                  Contador(value: counter)
+                  Contador(value: counter),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -89,12 +91,19 @@ class _CriarProdutoState extends State<CriarProduto> {
       return showError(context, "Insira o nome do produto.");
     }
 
-    /// Adicionar ao firestore
-    Database.adicionarProduto(Produto(
+    final produto = Produto(
         nome: nomeController.value.text,
         quantidade: counter.value,
         adicionadoEm: TimeHandler.now(),
-        alteradoEm: TimeHandler.now()));
+        alteradoEm: TimeHandler.now());
+
+    /// Adicionar ao firestore
+    Database.adicionarProduto(produto);
+
+    Database.registrarAtividade(Atividade(
+        criadoEm: TimeHandler.now(),
+        title: "Produto criado",
+        subtitle: "${produto.nome} - ${produto.quantidade} un."));
 
     Navigator.pop(context);
   }

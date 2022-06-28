@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/atividade.dart';
 import '../models/loja.dart';
 import '../models/produto.dart';
 
@@ -90,4 +91,11 @@ class Database {
         .doc(productId)
         .update({"quantidade": amount});
   }
+
+  static void registrarAtividade(Atividade atividade) async {
+    return FirebaseFirestore.instance.collection("atividades").doc().set(atividade.toFirestore());
+  }
+
+  static Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> get getAtividades =>
+      FirebaseFirestore.instance.collection("atividades").snapshots().map((event) => event.docs);
 }

@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:libero/home/home.dart';
-import 'package:libero/registro/registro.dart';
 import 'package:libero/rotas.dart';
+import 'package:libero/ultimas_atividades/ultimas_atividades.dart';
 
 import 'cores.dart';
 import 'estoque/estoque.dart';
@@ -81,7 +81,7 @@ class _InitialRouteState extends State<InitialRoute> {
                 },
               ),
             ),
-            const KeepAlivePage(page: Registro())
+            const KeepAlivePage(page: UltimasAtividades())
           ],
         ),
       ),
