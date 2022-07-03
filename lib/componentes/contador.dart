@@ -8,6 +8,15 @@ import '../utils/counter.dart';
 
 enum CounterButtonType { add, subtract }
 
+extension on Timer {
+  void maybeCancel() {
+    try {
+      cancel();
+      // ignore: empty_catches
+    } catch (e) {}
+  }
+}
+
 class Contador extends StatefulWidget {
   final Counter value;
   const Contador({Key? key, required this.value}) : super(key: key);
@@ -23,6 +32,7 @@ class _ContadorState extends State<Contador> {
   @override
   void dispose() {
     widget.value.removeListener(_setState);
+
     super.dispose();
   }
 
@@ -53,7 +63,7 @@ class _ContadorState extends State<Contador> {
       decoration: const BoxDecoration(color: verdeClaro, shape: BoxShape.circle),
       child: GestureDetector(
           onTap: type == CounterButtonType.add ? widget.value.add : widget.value.sub,
-          onTapDown: (details) {
+          onLongPressDown: (details) {
             if (type == CounterButtonType.add) {
               _timerIncrement = Timer.periodic(const Duration(milliseconds: 100), (t) => widget.value.add());
             } else {
@@ -61,11 +71,18 @@ class _ContadorState extends State<Contador> {
             }
             HapticFeedback.lightImpact();
           },
-          onTapUp: (details) {
+          onLongPressEnd: (details) {
             if (type == CounterButtonType.add) {
               _timerIncrement.cancel();
             } else {
               _timerDecrement.cancel();
+            }
+          },
+          onLongPressCancel: () {
+            if (type == CounterButtonType.add) {
+              _timerIncrement.maybeCancel();
+            } else {
+              _timerDecrement.maybeCancel();
             }
           },
           child: Icon(

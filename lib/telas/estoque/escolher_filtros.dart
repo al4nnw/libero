@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../cores.dart';
+import '../../cores.dart';
 
 class EscolherFiltros extends StatefulWidget {
   const EscolherFiltros({

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libero/models/total_products_store.dart';
 
-import '../cores.dart';
+import '../../cores.dart';
+import '../../main.dart';
+import '../../models/produto.dart';
+import '../../services/database.dart';
 import '../criar_produto/criar_produto.dart';
-import '../main.dart';
-import '../models/produto.dart';
-import '../services/database.dart';
 import 'escolher_filtros.dart';
 import 'produto_title.dart';
 

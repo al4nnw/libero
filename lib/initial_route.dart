@@ -1,12 +1,12 @@
 import "package:flutter/material.dart";
-import 'package:libero/home/home.dart';
 import 'package:libero/rotas.dart';
-import 'package:libero/ultimas_atividades/ultimas_atividades.dart';
+import 'package:libero/telas/home/home.dart';
 
 import 'cores.dart';
-import 'estoque/estoque.dart';
-import 'inspecionar_produto/inspecionar_produto.dart';
 import 'models/produto.dart';
+import 'telas/estoque/estoque.dart';
+import 'telas/inspecionar_produto/inspecionar_produto.dart';
+import 'telas/ultimas_atividades/ultimas_atividades.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

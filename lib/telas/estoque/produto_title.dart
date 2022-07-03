@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libero/estoque/estoque.dart';
 import 'package:libero/rotas.dart';
 
-import '../cores.dart';
-import '../models/produto.dart';
+import '../../cores.dart';
+import '../../models/produto.dart';
+import 'estoque.dart';
 
 class ProdutoTile extends ConsumerWidget {
   final Produto produto;

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:libero/componentes/contador.dart';
 import 'package:libero/models/atividade.dart';
 
-import '../cores.dart';
-import '../models/produto.dart';
-import '../services/database.dart';
-import '../utils/counter.dart';
-import '../utils/show_error.dart';
-import '../utils/time_handler.dart';
+import '../../cores.dart';
+import '../../models/produto.dart';
+import '../../services/database.dart';
+import '../../utils/counter.dart';
+import '../../utils/show_error.dart';
+import '../../utils/time_handler.dart';
 
 class CriarProduto extends StatefulWidget {
   const CriarProduto({Key? key}) : super(key: key);

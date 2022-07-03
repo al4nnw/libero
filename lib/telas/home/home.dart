@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:libero/home/home_option.dart';
 
-import '../rotas.dart';
+import '../../rotas.dart';
+import 'home_option.dart';
 
 final homeStateController = ValueNotifier<int>(0);
 

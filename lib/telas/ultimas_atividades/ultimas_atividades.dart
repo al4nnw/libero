@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-import '../cores.dart';
-import '../models/atividade.dart';
-import '../services/database.dart';
+import 'package:libero/cores.dart';
+import 'package:libero/models/atividade.dart';
+import 'package:libero/services/database.dart';
 
 class UltimasAtividades extends StatefulWidget {
   const UltimasAtividades({Key? key}) : super(key: key);
