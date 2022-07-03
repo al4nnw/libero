@@ -65,9 +65,9 @@ class _ContadorState extends State<Contador> {
           onTap: type == CounterButtonType.add ? widget.value.add : widget.value.sub,
           onLongPressDown: (details) {
             if (type == CounterButtonType.add) {
-              _timerIncrement = Timer.periodic(const Duration(milliseconds: 100), (t) => widget.value.add());
+              _timerIncrement = Timer.periodic(const Duration(milliseconds: 150), (t) => widget.value.add());
             } else {
-              _timerDecrement = Timer.periodic(const Duration(milliseconds: 100), (t) => widget.value.sub());
+              _timerDecrement = Timer.periodic(const Duration(milliseconds: 150), (t) => widget.value.sub());
             }
             HapticFeedback.lightImpact();
           },

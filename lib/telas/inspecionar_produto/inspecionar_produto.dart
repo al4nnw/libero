@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libero/componentes/contador.dart';
-import 'package:libero/models/atividade.dart';
 
 import '../../cores.dart';
 import '../../models/loja.dart';
 import '../../models/produto.dart';
 import '../../services/database.dart';
 import '../../utils/counter.dart';
-import '../../utils/time_handler.dart';
 import '../estoque/estoque.dart';
 import 'loja_counter.dart';
 
@@ -22,6 +21,8 @@ class InspecionarProduto extends ConsumerStatefulWidget {
 
 class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
   bool _showContadorEstoque = false;
+  FocusNode focusNodeArmazem = FocusNode();
+  TextEditingController armazemController = TextEditingController();
 
   bool podeRegistrarAlteracaoEstoque = true;
 
@@ -37,6 +38,8 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
   void dispose() {
     counterEstoque.removeListener(_atualizarProduto);
     counterEstoque.dispose();
+    focusNodeArmazem.dispose();
+    armazemController.dispose();
     super.dispose();
   }
 
@@ -54,6 +57,9 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
             onPressed: () {
               setState(() {
                 _showContadorEstoque = !_showContadorEstoque;
+                if (!_showContadorEstoque) {
+                  focusNodeArmazem.unfocus();
+                }
               });
             },
             child: Icon(_showContadorEstoque ? Icons.close : Icons.add)),
@@ -88,9 +94,7 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
                   children: [
                     const Text("Quantidade no estoque",
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
-                    QuantidadeProduto(
-                      produto: widget.produto,
-                    ),
+                    _buildQuantidadeArmazem()
                   ],
                 ),
               ),
@@ -103,7 +107,17 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
                 duration: const Duration(milliseconds: 300),
                 firstChild: Padding(
                   padding: const EdgeInsets.only(top: 20),
-                  child: Contador(value: counterEstoque),
+                  child: GestureDetector(
+                    onTap: () {
+                      focusNodeArmazem.requestFocus();
+                    },
+                    child: Column(
+                      children: [
+                        Contador(value: counterEstoque),
+                        _buildTextField(),
+                      ],
+                    ),
+                  ),
                 ),
                 secondChild: _ContadoresLojas(
                   produto: widget.produto,
@@ -119,28 +133,47 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
     );
   }
 
-  void _atualizarProduto() {
-    if (podeRegistrarAlteracaoEstoque) {
-      int quantidadeInicio = counterEstoque.value;
+  Widget _buildTextField() {
+    return SizedBox.shrink(
+      child: TextField(
+        focusNode: focusNodeArmazem,
+        controller: armazemController,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onChanged: (value) {
+          setState(() {
+            try {
+              counterEstoque.value = int.parse(value);
+            } catch (e) {
+              counterEstoque.value = 0;
+            }
+          });
+        },
+        onSubmitted: (value) {
+          _atualizarProduto();
+        },
+      ),
+    );
+  }
 
-      podeRegistrarAlteracaoEstoque = false;
-      Future.delayed(const Duration(seconds: 2)).then((value) {
-        final int difference = counterEstoque.value - quantidadeInicio;
-
-        if (difference == 0) return;
-        String title = "";
-        String subtitle = "";
-        if (difference > 0) {
-          title = "Produto reabastecido";
-          subtitle = "$difference unidades de ${widget.produto.nome} adicionadas ao estoque";
-        } else {
-          title = "Produto removido";
-          subtitle = "$difference unidades de ${widget.produto.nome} removidas do estoquye";
-        }
-        Database.registrarAtividade(Atividade(criadoEm: TimeHandler.now(), title: title, subtitle: subtitle));
-        podeRegistrarAlteracaoEstoque = true;
-      });
+  Widget _buildQuantidadeArmazem() {
+    String text = "${widget.produto.quantidade.toString()} un.";
+    if (focusNodeArmazem.hasFocus) {
+      text = "${counterEstoque.value} un.";
+      return Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal));
     }
+    return StreamBuilder<int>(
+        stream: Database.getQuantidade(widget.produto.id),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            text = "${snapshot.data.toString()} un.";
+            counterEstoque.value = snapshot.data!;
+          }
+          return Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal));
+        });
+  }
+
+  void _atualizarProduto() {
     Database.updateEstoque(widget.produto.id, counterEstoque.value);
   }
 
@@ -148,28 +181,6 @@ class _InspecionarProdutoState extends ConsumerState<InspecionarProduto> {
     Database.deleteProduct(widget.produto.id);
     ref.refresh(productsCounter);
     Navigator.pop(context);
-  }
-}
-
-class QuantidadeProduto extends StatelessWidget {
-  final Produto produto;
-  const QuantidadeProduto({
-    Key? key,
-    required this.produto,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String text = "${produto.quantidade.toString()} un.";
-    return StreamBuilder<int>(
-        stream: Database.getQuantidade(produto.id),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            text = "${snapshot.data.toString()} un.";
-          }
-
-          return Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal));
-        });
   }
 }
 

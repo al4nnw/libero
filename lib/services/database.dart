@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/atividade.dart';
 import '../models/loja.dart';
 import '../models/produto.dart';
+import '../utils/time_handler.dart';
 
+const String collectionVendas = "vendas-teste";
 const String collectionLojas = "lojas-teste";
 const String collectionAtividades = "atividades-teste";
 
@@ -15,6 +17,20 @@ class Database {
     FirebaseFirestore.instance.collection(collectionLojas)
       ..doc("concordia").collection("produtos").doc(docRef.id).set(produto.toFirestoreEmpty())
       ..doc("allBras").collection("produtos").doc(docRef.id).set(produto.toFirestoreEmpty());
+  }
+
+  static void updateEstoqueLoja(Loja loja, Produto produto, int quantidade) async {
+    registrarAtividade(Atividade(
+        criadoEm: TimeHandler.now(),
+        title: "Produto alterado",
+        subtitle: "${produto.nome} agora tem $quantidade un. no estoque da loja ${loja.nome}"));
+
+    FirebaseFirestore.instance
+        .collection(collectionLojas)
+        .doc(loja.id)
+        .collection("produtos")
+        .doc(produto.id)
+        .update({"quantidade": quantidade});
   }
 
   static Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getProducts() {

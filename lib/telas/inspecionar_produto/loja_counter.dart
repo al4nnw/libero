@@ -27,7 +27,7 @@ class LojaCounter extends StatefulWidget {
 
 class _LojaCounterState extends State<LojaCounter> {
   int quantidade = 0;
-
+  int quantidadeOnServer = 0;
   bool podeRegistrarDecremento = true;
   bool podeRegistrarIncremento = true;
   FocusNode focusNode = FocusNode();
@@ -70,39 +70,51 @@ class _LojaCounterState extends State<LojaCounter> {
                     style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500)),
                 Row(children: [
                   _buildTextField(),
-                  IconButton(
-                      splashRadius: 0.01,
-                      onPressed: () {
-                        /// Verificar se esta acumulando
-                        if (quantidade <= 0) return;
-                        if (podeRegistrarIncremento) {
-                          quantidade--;
-                          _registrarAtividadeDecrementar();
-                          Database.retirarDaLoja(widget.loja, widget.produto);
-                          widget.counterEstoqueArmazem.value++;
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.exposure_minus_1,
-                        color: Colors.white,
-                      )),
+                  Visibility(
+                    maintainState: true,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    visible: !focusNode.hasFocus,
+                    child: IconButton(
+                        splashRadius: 0.01,
+                        onPressed: () {
+                          /// Verificar se esta acumulando
+                          if (quantidade <= 0) return;
+                          if (podeRegistrarIncremento) {
+                            quantidade--;
+                            _registrarAtividadeDecrementar();
+                            Database.retirarDaLoja(widget.loja, widget.produto);
+                            widget.counterEstoqueArmazem.value++;
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.exposure_minus_1,
+                          color: Colors.white,
+                        )),
+                  ),
                   const SizedBox(width: 5),
                   _buildQuantidadeNaLoja(),
                   const SizedBox(width: 5),
-                  IconButton(
-                      splashRadius: 0.01,
-                      onPressed: () {
-                        /// Verificar se esta acumulando
-                        if (widget.counterEstoqueArmazem.value > 0 && podeRegistrarDecremento) {
-                          _registrarAtividadeIncrementar();
-                          Database.adicionarParaLoja(widget.loja, widget.produto);
-                          widget.counterEstoqueArmazem.value--;
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.exposure_plus_1,
-                        color: Colors.white,
-                      )),
+                  Visibility(
+                    maintainState: true,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    visible: !focusNode.hasFocus,
+                    child: IconButton(
+                        splashRadius: 0.01,
+                        onPressed: () {
+                          /// Verificar se esta acumulando
+                          if (widget.counterEstoqueArmazem.value > 0 && podeRegistrarDecremento) {
+                            _registrarAtividadeIncrementar();
+                            Database.adicionarParaLoja(widget.loja, widget.produto);
+                            widget.counterEstoqueArmazem.value--;
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.exposure_plus_1,
+                          color: Colors.white,
+                        )),
+                  ),
                 ]),
               ],
             ),
@@ -128,6 +140,10 @@ class _LojaCounterState extends State<LojaCounter> {
             }
           });
         },
+        onSubmitted: (value) {
+          final number = int.parse(value);
+          Database.updateEstoqueLoja(widget.loja, widget.produto, number);
+        },
       ),
     );
   }
@@ -145,6 +161,7 @@ class _LojaCounterState extends State<LojaCounter> {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             quantidade = snapshot.data!;
+            quantidadeOnServer = quantidade;
           }
           return Padding(
             padding: const EdgeInsets.only(bottom: 3),
